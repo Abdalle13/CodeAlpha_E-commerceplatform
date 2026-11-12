@@ -52,3 +52,4 @@ export const IMAGE_PRESETS = {
   editorialHero: { width: 1920, height: 1080, quality: 85 },
   collectionCard: { width: 800, height: 1000, focus: 'auto', quality: 85 },
 };
+
