@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- HILAARA Monogram Symbol: Pure White on Transparent -->
+  <rect x="18" y="16" width="12" height="68" rx="2" fill="#FFFFFF" />
+  <rect x="70" y="16" width="12" height="68" rx="2" fill="#FFFFFF" />
+  <!-- Elevated Arch Crossbeam -->
+  <path d="M30 46 C 30 34, 70 34, 70 46 L 70 56 C 70 46, 30 46, 30 56 Z" fill="#FFFFFF" />
+  <path d="M30 48 Q 50 38 70 48" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" />
+</svg>
+
