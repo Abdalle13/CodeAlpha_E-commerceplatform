@@ -194,3 +194,4 @@ export const authService = {
     return { data, error: null };
   },
 };
+

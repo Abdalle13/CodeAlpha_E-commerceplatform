@@ -63,3 +63,4 @@ describe('authService', () => {
     expect(res.data.role).toBe('customer'); // Role should NOT be modified
   });
 });
+

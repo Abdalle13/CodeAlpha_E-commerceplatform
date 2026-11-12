@@ -82,3 +82,4 @@ describe('Route Guards', () => {
     expect(screen.getByText('Secret Admin Area')).toBeInTheDocument();
   });
 });
+

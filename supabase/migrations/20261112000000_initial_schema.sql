@@ -577,3 +577,4 @@ VALUES
   ('general_info', '{"store_name": "HILAARA Store", "contact_phone": "+252 61 500 0000", "support_email": "support@hilaara.com", "currency": "USD"}'::jsonb, 'General store contact and currency configuration'),
   ('announcement_bar', '{"enabled": true, "message": "Complimentary same-day delivery across Mogadishu for orders over $100."}'::jsonb, 'Storefront top announcement bar')
 ON CONFLICT (key) DO NOTHING;
+
