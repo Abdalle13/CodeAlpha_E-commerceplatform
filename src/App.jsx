@@ -29,6 +29,9 @@ const ShopPage = lazy(() =>
 const CollectionPage = lazy(() =>
   import('./pages/storefront/CollectionPage').then((m) => ({ default: m.CollectionPage }))
 );
+const ProductDetailPage = lazy(() =>
+  import('./pages/storefront/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
+);
 const NotFoundPage = lazy(() =>
   import('./pages/common/NotFoundPage').then((m) => ({ default: m.NotFoundPage }))
 );
@@ -76,6 +79,7 @@ export function App() {
                   <Route element={<StorefrontLayout />}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/shop" element={<ShopPage />} />
+                    <Route path="/products/:slug" element={<ProductDetailPage />} />
                     <Route path="/collections/:slug" element={<CollectionPage />} />
 
                     {/* Auth pages — inside layout so Navbar + Footer are present */}
