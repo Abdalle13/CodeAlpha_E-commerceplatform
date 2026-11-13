@@ -76,13 +76,33 @@ const ResetPasswordPage = lazy(() =>
   import('./pages/auth/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage }))
 );
 
-// Admin placeholder — full admin dashboard is built in Phase 8
-
-const AdminPlaceholder = () => (
-  <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4">
-    <h1 className="font-serif text-3xl font-medium text-charcoal">Admin Console</h1>
-    <p className="text-muted-text text-sm">The full admin dashboard is built in Phase 8.</p>
-  </div>
+// Admin pages — Phase 8 Administrative Command Center
+const AdminLayout = lazy(() =>
+  import('./pages/admin/AdminLayout').then((m) => ({ default: m.AdminLayout }))
+);
+const AdminOverviewPage = lazy(() =>
+  import('./pages/admin/AdminOverviewPage').then((m) => ({ default: m.AdminOverviewPage }))
+);
+const AdminProductsPage = lazy(() =>
+  import('./pages/admin/AdminProductsPage').then((m) => ({ default: m.AdminProductsPage }))
+);
+const AdminInventoryPage = lazy(() =>
+  import('./pages/admin/AdminInventoryPage').then((m) => ({ default: m.AdminInventoryPage }))
+);
+const AdminOrdersPage = lazy(() =>
+  import('./pages/admin/AdminOrdersPage').then((m) => ({ default: m.AdminOrdersPage }))
+);
+const AdminCustomersPage = lazy(() =>
+  import('./pages/admin/AdminCustomersPage').then((m) => ({ default: m.AdminCustomersPage }))
+);
+const AdminShippingPage = lazy(() =>
+  import('./pages/admin/AdminShippingPage').then((m) => ({ default: m.AdminShippingPage }))
+);
+const AdminSettingsPage = lazy(() =>
+  import('./pages/admin/AdminSettingsPage').then((m) => ({ default: m.AdminSettingsPage }))
+);
+const AdminAuditLogsPage = lazy(() =>
+  import('./pages/admin/AdminAuditLogsPage').then((m) => ({ default: m.AdminAuditLogsPage }))
 );
 
 export function App() {
@@ -126,15 +146,24 @@ export function App() {
                     </Route>
                   </Route>
 
-                  {/* Admin area — full-page, no storefront layout (admin builds its own layout in Phase 8) */}
+                  {/* Admin area — full-page dedicated dark shell with protected admin guard */}
                   <Route
-                    path="/admin/*"
+                    path="/admin"
                     element={
                       <AdminRoute>
-                        <AdminPlaceholder />
+                        <AdminLayout />
                       </AdminRoute>
                     }
-                  />
+                  >
+                    <Route index element={<AdminOverviewPage />} />
+                    <Route path="products" element={<AdminProductsPage />} />
+                    <Route path="inventory" element={<AdminInventoryPage />} />
+                    <Route path="orders" element={<AdminOrdersPage />} />
+                    <Route path="customers" element={<AdminCustomersPage />} />
+                    <Route path="shipping" element={<AdminShippingPage />} />
+                    <Route path="settings" element={<AdminSettingsPage />} />
+                    <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+                  </Route>
 
                   {/* 404 */}
                   <Route path="*" element={<NotFoundPage />} />
