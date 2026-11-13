@@ -15,6 +15,12 @@ import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { Badge } from '../../components/common/Badge';
 import { buildImageUrl } from '../../lib/imagekit';
+import { DemoPaymentModal } from '../../components/checkout/DemoPaymentModal';
+import {
+  initiatePayment,
+  processSimulation,
+  recordPayOnDelivery,
+} from '../../services/paymentService';
 
 const STEPS = [
   { id: 1, label: 'Contact', icon: User },
@@ -62,6 +68,12 @@ export const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState('evc_plus');
   const [paymentPhone, setPaymentPhone] = useState('');
   const [errors, setErrors] = useState({});
+
+  // Mobile Money Simulation States
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [activePaymentOrder, setActivePaymentOrder] = useState(null);
+  const [activePayment, setActivePayment] = useState(null);
+  const [isProcessingSimulation, setIsProcessingSimulation] = useState(false);
 
   // Sync profile when auth state resolves
   useEffect(() => {
@@ -182,15 +194,101 @@ export const CheckoutPage = () => {
         throw new Error(error?.message || 'Failed to generate order.');
       }
 
-      // Success: clear cart and redirect to confirmation
-      clearCart();
-      toast.success(`Order ${order.order_number} confirmed!`);
-      navigate(`/order-confirmation?orderNumber=${order.order_number}`);
+      // 1. Pay on Delivery flow: Direct order confirmation
+      if (paymentMethod === 'pay_on_delivery') {
+        await recordPayOnDelivery({
+          orderId: order.id,
+          orderNumber: order.order_number,
+          amount: order.total_amount,
+          payerPhone: customerInfo.phone,
+        });
+
+        clearCart();
+        toast.success(`Order ${order.order_number} confirmed! Pay via mobile transfer on delivery.`);
+        navigate(`/order-confirmation?orderNumber=${order.order_number}`);
+        return;
+      }
+
+      // 2. Somali Mobile Money flow (EVC Plus, eDahab, ZAAD): Open simulation modal
+      const { data: payment } = await initiatePayment({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        amount: order.total_amount,
+        method: paymentMethod,
+        payerPhone: customerInfo.phone,
+      });
+
+      setActivePaymentOrder(order);
+      setActivePayment(payment);
+      setIsDemoModalOpen(true);
     } catch (err) {
       console.error('[CheckoutPage] Order placement error:', err);
       toast.error(err.message || 'There was an issue processing your order. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleScenarioSelect = async (scenario) => {
+    if (!activePaymentOrder) return null;
+    setIsProcessingSimulation(true);
+
+    try {
+      const { data, error } = await processSimulation({
+        paymentId: activePayment?.id,
+        orderId: activePaymentOrder.id,
+        orderNumber: activePaymentOrder.order_number,
+        method: activePaymentOrder.payment_method,
+        scenario,
+      });
+
+      if (error) {
+        toast.error(error.message || 'Simulation error.');
+        return { status: 'failed', message: error.message };
+      }
+
+      if (scenario === 'approved') {
+        clearCart();
+        toast.success(`Payment confirmed! Ref: ${data.transaction_reference}`);
+        setTimeout(() => {
+          setIsDemoModalOpen(false);
+          navigate(`/order-confirmation?orderNumber=${activePaymentOrder.order_number}`);
+        }, 800);
+
+        return {
+          status: 'paid',
+          reference: data.transaction_reference,
+          message: 'Payment approved successfully. Order is confirmed.',
+        };
+      }
+
+      if (scenario === 'rejected') {
+        toast.error('Simulation: Payment declined due to insufficient balance or user rejection.');
+        return {
+          status: 'failed',
+          message: 'USSD prompt rejected. Check balance or switch to Pay on Delivery.',
+        };
+      }
+
+      if (scenario === 'timeout') {
+        toast.info('Simulation: USSD prompt expired (60s timeout).');
+        return {
+          status: 'pending',
+          message: 'USSD push expired with no customer response.',
+        };
+      }
+
+      if (scenario === 'cancelled') {
+        setIsDemoModalOpen(false);
+        toast.info('Payment simulation cancelled.');
+        return { status: 'cancelled', message: 'Transaction aborted by user.' };
+      }
+    } catch (err) {
+      console.error('[CheckoutPage] Scenario execution error:', err);
+      toast.error('Simulation failed. Please try again.');
+      return { status: 'failed', message: err.message };
+    } finally {
+      setIsProcessingSimulation(false);
     }
   };
 
@@ -542,6 +640,16 @@ export const CheckoutPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Somali Mobile Money Simulation Modal */}
+      <DemoPaymentModal
+        isOpen={isDemoModalOpen}
+        order={activePaymentOrder}
+        payment={activePayment}
+        onScenarioSelect={handleScenarioSelect}
+        onClose={() => setIsDemoModalOpen(false)}
+        isProcessing={isProcessingSimulation}
+      />
     </div>
   );
 };
