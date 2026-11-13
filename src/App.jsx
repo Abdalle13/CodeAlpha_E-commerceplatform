@@ -32,6 +32,9 @@ const CollectionPage = lazy(() =>
 const ProductDetailPage = lazy(() =>
   import('./pages/storefront/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
 );
+const CartPage = lazy(() =>
+  import('./pages/storefront/CartPage').then((m) => ({ default: m.CartPage }))
+);
 const NotFoundPage = lazy(() =>
   import('./pages/common/NotFoundPage').then((m) => ({ default: m.NotFoundPage }))
 );
@@ -81,6 +84,7 @@ export function App() {
                     <Route path="/shop" element={<ShopPage />} />
                     <Route path="/products/:slug" element={<ProductDetailPage />} />
                     <Route path="/collections/:slug" element={<CollectionPage />} />
+                    <Route path="/cart" element={<CartPage />} />
 
                     {/* Auth pages — inside layout so Navbar + Footer are present */}
                     <Route path="/login" element={<LoginPage />} />
