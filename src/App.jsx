@@ -35,8 +35,31 @@ const ProductDetailPage = lazy(() =>
 const CartPage = lazy(() =>
   import('./pages/storefront/CartPage').then((m) => ({ default: m.CartPage }))
 );
+const CheckoutPage = lazy(() =>
+  import('./pages/storefront/CheckoutPage').then((m) => ({ default: m.CheckoutPage }))
+);
+const OrderConfirmationPage = lazy(() =>
+  import('./pages/storefront/OrderConfirmationPage').then((m) => ({ default: m.OrderConfirmationPage }))
+);
 const NotFoundPage = lazy(() =>
   import('./pages/common/NotFoundPage').then((m) => ({ default: m.NotFoundPage }))
+);
+
+// Account pages
+const AccountLayout = lazy(() =>
+  import('./pages/account/AccountLayout').then((m) => ({ default: m.AccountLayout }))
+);
+const ProfilePage = lazy(() =>
+  import('./pages/account/ProfilePage').then((m) => ({ default: m.ProfilePage }))
+);
+const OrdersPage = lazy(() =>
+  import('./pages/account/OrdersPage').then((m) => ({ default: m.OrdersPage }))
+);
+const AddressesPage = lazy(() =>
+  import('./pages/account/AddressesPage').then((m) => ({ default: m.AddressesPage }))
+);
+const WishlistPage = lazy(() =>
+  import('./pages/account/WishlistPage').then((m) => ({ default: m.WishlistPage }))
 );
 
 // Auth pages
@@ -53,14 +76,7 @@ const ResetPasswordPage = lazy(() =>
   import('./pages/auth/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage }))
 );
 
-// Placeholder stubs for protected pages built in later phases
-// These are inline components so the route tree is wired correctly from Phase 3 onward
-const AccountPlaceholder = () => (
-  <div className="max-w-3xl mx-auto px-4 py-24 text-center space-y-4">
-    <h1 className="font-serif text-3xl font-medium text-charcoal">My Account</h1>
-    <p className="text-muted-text text-sm">Account management pages are built in Phase 6.</p>
-  </div>
-);
+// Admin placeholder — full admin dashboard is built in Phase 8
 
 const AdminPlaceholder = () => (
   <div className="max-w-4xl mx-auto px-4 py-24 text-center space-y-4">
@@ -85,6 +101,8 @@ export function App() {
                     <Route path="/products/:slug" element={<ProductDetailPage />} />
                     <Route path="/collections/:slug" element={<CollectionPage />} />
                     <Route path="/cart" element={<CartPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
 
                     {/* Auth pages — inside layout so Navbar + Footer are present */}
                     <Route path="/login" element={<LoginPage />} />
@@ -94,13 +112,18 @@ export function App() {
 
                     {/* Protected customer area */}
                     <Route
-                      path="/account/*"
+                      path="/account"
                       element={
                         <ProtectedRoute>
-                          <AccountPlaceholder />
+                          <AccountLayout />
                         </ProtectedRoute>
                       }
-                    />
+                    >
+                      <Route index element={<ProfilePage />} />
+                      <Route path="orders" element={<OrdersPage />} />
+                      <Route path="addresses" element={<AddressesPage />} />
+                      <Route path="wishlist" element={<WishlistPage />} />
+                    </Route>
                   </Route>
 
                   {/* Admin area — full-page, no storefront layout (admin builds its own layout in Phase 8) */}

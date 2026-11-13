@@ -19,6 +19,11 @@ globalThis.ResizeObserver = class ResizeObserver {
   disconnect() {}
 };
 
+// window.scrollTo is not implemented in jsdom
+if (typeof window !== 'undefined') {
+  window.scrollTo = () => {};
+}
+
 // Clean up DOM after each test
 afterEach(() => {
   cleanup();
